@@ -5,7 +5,7 @@ module.exports = {
     once: true,
     async execute(client) {
 
-        client.user.setPresence({ activities: [{ name: `v4 Beta `, type: ActivityType.Playing }], status: 'dnd', });
+        client.user.setPresence({ activities: [{ name: `v5 Beta `, type: ActivityType.Playing }], status: 'dnd', });
         console.log('Bot is ready to use!');
 
     },
