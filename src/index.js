@@ -3,6 +3,8 @@ const fs = require('fs');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] }); 
 
 client.commands = new Collection();
+client.buttons = new Collection();
+
 
 require('dotenv').config();
 
@@ -10,8 +12,11 @@ const functions = fs.readdirSync("./src/functions").filter(file => file.endsWith
 const eventFiles = fs.readdirSync("./src/events").filter(file => file.endsWith(".js"));
 const commandFolders = fs.readdirSync("./src/commands");
 
+
+
 (async () => {
     for (file of functions) {
+        console.log(file);
         require(`./functions/${file}`)(client);
     }
     client.handleEvents(eventFiles, "./src/events");
