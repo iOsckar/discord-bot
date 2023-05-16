@@ -22,8 +22,6 @@ module.exports = {
 
         } else if(interaction.isButton()) {
 
-            console.log(interaction.customId);
-
             const { buttons } = client;
             const { customId } = interaction;
             const button = buttons.get(customId);
@@ -33,10 +31,22 @@ module.exports = {
             if(!button) return new Error('There is no code for this button');
         
             try {
-                console.log('THIS PART IS EXECUTING');
                 await button.execute(interaction, client);
             } catch (err){
                 console.error(err);
+            }
+
+        } else if(interaction.isSelectMenu()) {
+            const { selectMenus } = client;
+            const { customId } = interaction;
+            const menu = selectMenus.get(customId);
+
+            if(!menu) return new Error("There is no code for this select menu");
+
+            try {
+                await menu.execute(interaction, client);
+            } catch(err) {
+                console.log(err);
             }
         }
 

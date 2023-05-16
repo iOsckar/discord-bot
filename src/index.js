@@ -4,7 +4,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 client.commands = new Collection();
 client.buttons = new Collection();
-
+client.selectMenus = new Collection();
 
 require('dotenv').config();
 
