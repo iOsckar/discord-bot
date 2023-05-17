@@ -1,7 +1,5 @@
 const { ActionRowBuilder, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder} = require('@discordjs/builders');
-
 const emojisJSON = require('../../JSON/emojis.json');
-
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,11 +11,8 @@ module.exports = {
 			.setRequired(true)),
     
     async execute(interaction, client) {
-
-	
-
 		let userCommandData = interaction.options.get('tasks'); //The input is called 'tasks' which it is recieved once the user send the command with the tex
-		let maxOfTasks = 15;
+		let maxOfTasks = 21;
 
 		let arrayTasks = userCommandData.value.split(',').filter(elm => elm); //Turns the string into an array... then... Delete all the void indexes [1,2,3,,,,6,7 ] => [1,2,3,6,7]
 
@@ -34,15 +29,13 @@ module.exports = {
 		const embedMessage = generateEmbed(username, profilePic, formatedTasks, arrayEmojis);
 		const selectMenu = createSelectMenu(arrayTasks,arrayEmojis);
 
-
 		const row = new ActionRowBuilder().addComponents(selectMenu);
 
-
 		await interaction.reply({
-			content: ` hola`,
 			embeds: [embedMessage], components: [row]
         });
-		
+
+
     }
 }
 
@@ -55,7 +48,6 @@ function getEmojis(emojis) {
 
 	arrayEmojis.sort(function(a, b){return 0.5 - Math.random()}); //Shuffles the array randomly
 
-	console.log(arrayEmojis);
 	return arrayEmojis;
 }
 
@@ -63,7 +55,7 @@ function concatenateOptions(arrayTasks, arrayEmojis) {
 	let tasksEmbed = '';
 
 	for (let i = 0; i < arrayTasks.length; i++) 
-		tasksEmbed += `**${i + 1} -** ${arrayTasks[i]}  ${arrayEmojis[i][1]}\n`;
+		tasksEmbed += `**○** ${arrayTasks[i]}  ${arrayEmojis[i][1]}\n`;
 	
 	return tasksEmbed;
 }
@@ -74,7 +66,6 @@ function generateEmbed(username, profilePic, formatedTasks) {
 	.setAuthor({ name: `${username}'s to-do list`, iconURL: profilePic })
 	.setDescription(formatedTasks)
 	.setTimestamp()
-	.setFooter({ text: 'TEST' });
 
 	return embedMessage;
 }
@@ -84,8 +75,8 @@ function createSelectMenu(arrayTasks, arrayEmojis) {
 	const options = [];
 
 	const selectMenu = new StringSelectMenuBuilder()
-	.setCustomId('starter')
-	.setPlaceholder('Make a selection!')
+	.setCustomId('checkTask')
+	.setPlaceholder('Check a task!')
 	.setMinValues(1)
 	.setMaxValues(arrayTasks.length);
 
@@ -102,15 +93,3 @@ function createSelectMenu(arrayTasks, arrayEmojis) {
 	selectMenu.addOptions(options);
 	return selectMenu;
 };
-
-//*CREATING BUTTONS*//
-
-		/*const confirm = new ButtonBuilder()
-			.setCustomId('confirm')
-			.setLabel('1')
-			.setStyle("Danger");
-
-		const cancel = new ButtonBuilder()
-			.setCustomId('cancel')
-			.setLabel('2')
-			.setStyle("Secondary");*/
