@@ -1,5 +1,6 @@
 const { ActionRowBuilder, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, StringSelectMenuBuilder, SelectMenuOptionBuilder, SelectMenuBuilder, embedLength} = require('@discordjs/builders');
 const { Sticker } = require('discord.js');
+const { data } = require('../../commands/Community/to-do');
 
 module.exports = {
     data: {
@@ -10,6 +11,8 @@ module.exports = {
         const dataEmbedTasks = interaction.message.embeds[0].description; //Gets the description from the embed message which are the tasks.
         const dataTasks = convertDataTasks(dataEmbedTasks);
         
+        generateNewTasksEmbedString(dataTasks, interaction.values);
+
         console.log(dataTasks);
 
         //await interaction.update({ embeds: [exampleEmbed] });
@@ -46,6 +49,40 @@ function convertDataTasks(dataEmbedTasks) {
             isChecked: isChecked, taskName: taskName, emoji: emoji
         });  
     }
-    
+
     return dataTasks;
+}
+
+function generateNewTasksEmbedString(dataTasks, arraySelectedOptionsIndexes) {
+    let tasksString = '';
+
+    for (let i = 0; i < arraySelectedOptionsIndexes.length; i++) {
+        
+        if(dataTasks[arraySelectedOptionsIndexes[i]].isChecked === false) 
+            dataTasks[arraySelectedOptionsIndexes[i]].isChecked = true;
+        else 
+            dataTasks[arraySelectedOptionsIndexes[i]].isChecked = false;
+    }
+
+
+    for (let i = 0; i < dataTasks.length; i++) {
+
+        if(dataTasks[i].isChecked) 
+            tasksString += `**✔** ${dataTasks[i].taskName} ${dataTasks[i].emoji}\n`;
+        else 
+            tasksString += `**○** ${dataTasks[i].taskName} ${dataTasks[i].emoji}\n`;
+
+    }
+        
+    return tasksString;
+}
+
+function generateEmbed(username, profilePic, formatedTasks) {
+	const embedMessage = new EmbedBuilder()
+	.setColor(0x0099FF)
+	.setAuthor({ name: `${username}'s goals`, iconURL: profilePic })
+	.setDescription(formatedTasks)
+	.setTimestamp()
+
+	return embedMessage;
 }

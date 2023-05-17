@@ -85,7 +85,7 @@ function createSelectMenu(arrayTasks, arrayEmojis) {
 			new StringSelectMenuOptionBuilder()
 				.setLabel(`${arrayTasks[i]}`)
 				//.setEmoji({ name: arrayEmojis[i][0], id: `:${arrayEmojis[i][0]}:` })
-				.setValue(`${i + 1 }`)
+				.setValue(`${i}`)
 				
 		);
 	}
