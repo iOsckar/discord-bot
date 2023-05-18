@@ -8,14 +8,17 @@ module.exports = {
     },
     async execute(interaction, client) {
         
+        console.log(interaction);
+
         const dataEmbedTasks = interaction.message.embeds[0].description; //Gets the description from the embed message which are the tasks.
         const dataTasks = convertDataTasks(dataEmbedTasks);
         
         const formatedTasks = generateNewTasksEmbedString(dataTasks, interaction.values);
         const username = interaction.user.username;
 		const profilePic = interaction.user.displayAvatarURL();
+        const idUser = interaction.user.id;
 
-        const embedMessage = generateEmbed(username, profilePic, formatedTasks);
+        const embedMessage = generateEmbed(username, profilePic, idUser, formatedTasks);
 		const selectMenu = createSelectMenu(dataTasks);
 
         const row = new ActionRowBuilder().addComponents(selectMenu);
@@ -24,7 +27,7 @@ module.exports = {
 			embeds: [embedMessage], components: [row]
         });
 
-        console.log(dataTasks);
+        //console.log(dataTasks);
 
         //await interaction.update({ embeds: [exampleEmbed] });
 
@@ -48,7 +51,10 @@ function convertDataTasks(dataEmbedTasks) {
         else isChecked = false;
 
         let taskName = arrayDataEmbedTasks[i].substring(6); //This delete the first 6 characters (**✔**)
-        taskName = taskName.replace(/[^\x20-\x7E]/g, '').trim(); //Removes all the emojis from the string
+        taskName = taskName.replace(/~/g,'');
+        taskName = taskName.replace(/[^\x20-\x7E]/g, '').trim(); //Removes all the emojis from the string... then the blank spaces
+
+        console.log(taskName);
 
         let emoji = arrayDataEmbedTasks[i];
         emoji = arrayDataEmbedTasks[i].slice(-2).replace(' ️','').trim(); //Get the last character (Which is the emoji, and delete blank spaces just in case there are)
@@ -76,7 +82,7 @@ function generateNewTasksEmbedString(dataTasks, arraySelectedOptionsIndexes) {
     for (let i = 0; i < dataTasks.length; i++) {
 
         if(dataTasks[i].isChecked) 
-            tasksString += `**✔** ${dataTasks[i].taskName} ${dataTasks[i].emoji}\n`;
+            tasksString += `**✔** ~~${dataTasks[i].taskName}~~ ${dataTasks[i].emoji}\n`;
         else 
             tasksString += `**○** ${dataTasks[i].taskName} ${dataTasks[i].emoji}\n`;
 
@@ -85,12 +91,13 @@ function generateNewTasksEmbedString(dataTasks, arraySelectedOptionsIndexes) {
     return tasksString;
 }
 
-function generateEmbed(username, profilePic, formatedTasks) {
+function generateEmbed(username, profilePic, idUser, formatedTasks) {
 	const embedMessage = new EmbedBuilder()
-	.setColor(0x0099FF)
+	.setColor(16761034)
 	.setAuthor({ name: `${username}'s goals`, iconURL: profilePic })
+    .setThumbnail('https://i.imgur.com/zXZ0u35.png')
 	.setDescription(formatedTasks)
-	.setTimestamp()
+	.setFooter({ text: idUser })
 
 	return embedMessage;
 }
@@ -105,13 +112,17 @@ function createSelectMenu(dataTasks, arrayEmojis) {
 	.setMaxValues(dataTasks.length);
 
 	for (let i = 0; i < dataTasks.length; i++) {
-		options.push(
-			new StringSelectMenuOptionBuilder()
-				.setLabel(`${dataTasks[i].taskName}`)
-				//.setEmoji({ name: arrayEmojis[i][0], id: `:${arrayEmojis[i][0]}:` })
-				.setValue(`${i}`)
-				
-		);
+
+        taskName = `${dataTasks[i].taskName}`
+        const option = new StringSelectMenuOptionBuilder()
+            .setLabel(`${taskName}`)
+            .setValue(`${i}`)
+
+        if(dataTasks[i].isChecked) 
+            option.setEmoji({ name: 'fluffy_check' , id: `1108620303283798117` })
+
+		options.push(option);
+
 	}
 
 	selectMenu.addOptions(options);

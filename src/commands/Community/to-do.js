@@ -11,6 +11,9 @@ module.exports = {
 			.setRequired(true)),
     
     async execute(interaction, client) {
+		
+		console.log('id mio es ' + interaction.user.id);
+
 		let userCommandData = interaction.options.get('tasks'); //The input is called 'tasks' which it is recieved once the user send the command with the tex
 		let maxOfTasks = 21;
 
@@ -22,11 +25,12 @@ module.exports = {
 		}
 
 		let username = interaction.user.username;
+		let idUser = interaction.user.id;
 		let profilePic = interaction.user.displayAvatarURL();
 		
 		const arrayEmojis = getEmojis(emojisJSON);
 		const formatedTasks = concatenateOptions(arrayTasks, arrayEmojis); //Receive the tasks from the command and turns it into an array. 
-		const embedMessage = generateEmbed(username, profilePic, formatedTasks, arrayEmojis);
+		const embedMessage = generateEmbed(username, profilePic, idUser, formatedTasks, arrayEmojis);
 		const selectMenu = createSelectMenu(arrayTasks,arrayEmojis);
 
 		const row = new ActionRowBuilder().addComponents(selectMenu);
@@ -60,12 +64,14 @@ function concatenateOptions(arrayTasks, arrayEmojis) {
 	return tasksEmbed;
 }
 
-function generateEmbed(username, profilePic, formatedTasks) {
+function generateEmbed(username, profilePic, idUser, formatedTasks) {
 	const embedMessage = new EmbedBuilder()
-	.setColor(0x0099FF)
+	.setColor(16761034)
 	.setAuthor({ name: `${username}'s goals`, iconURL: profilePic })
+	.setThumbnail('https://i.imgur.com/zXZ0u35.png')
 	.setDescription(formatedTasks)
 	.setTimestamp()
+	.setFooter({ text: `${idUser}` })
 
 	return embedMessage;
 }

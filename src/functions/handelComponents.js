@@ -4,8 +4,6 @@ module.exports = (client) => {
     client.handleComponents = async () => {
         const componentFolder = readdirSync("./src/components");
 
-        console.log('THIS LINE WORKS');
-
         for(const folder of componentFolder) {
             const componentsFiles = readdirSync(`./src/components/${folder}`).filter(
                 (file) => file.endsWith(".js")
