@@ -1,4 +1,4 @@
-const { ActionRowBuilder, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, StringSelectMenuBuilder, SelectMenuOptionBuilder, SelectMenuBuilder, StringSelectMenuOptionBuilder} = require('@discordjs/builders');
+const { ActionRowBuilder, ButtonStyle, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, StringSelectMenuBuilder, SelectMenuOptionBuilder, SelectMenuBuilder, StringSelectMenuOptionBuilder} = require('@discordjs/builders');
 const { Sticker } = require('discord.js');
 const { data } = require('../../commands/Community/to-do');
 
@@ -8,35 +8,53 @@ module.exports = {
     },
     async execute(interaction, client) {
         
-        console.log(interaction);
-
         const dataEmbedTasks = interaction.message.embeds[0].description; //Gets the description from the embed message which are the tasks.
         const dataTasks = convertDataTasks(dataEmbedTasks);
         
+
         const formatedTasks = generateNewTasksEmbedString(dataTasks, interaction.values);
         const username = interaction.user.username;
 		const profilePic = interaction.user.displayAvatarURL();
         const idUser = interaction.user.id;
 
+        let allTasksAreDone = false;
+        allTasksAreDone = checkIfAllTasksAreChecked(dataTasks);
+
+       
         const embedMessage = generateEmbed(username, profilePic, idUser, formatedTasks);
 		const selectMenu = createSelectMenu(dataTasks);
 
-        const row = new ActionRowBuilder().addComponents(selectMenu);
+        const rowMenu = new ActionRowBuilder().addComponents(selectMenu);
+        
+        let arrayRow = [];
+        arrayRow.push(rowMenu);
+
+        if(allTasksAreDone) {
+            const button = createButton();
+
+            const rowButton = new ActionRowBuilder().addComponents(button);
+            arrayRow.push(rowButton);
+        } 
+
 
 		await interaction.update({
-			embeds: [embedMessage], components: [row]
+			embeds: [embedMessage], components: arrayRow
         });
-
-        //console.log(dataTasks);
-
-        //await interaction.update({ embeds: [exampleEmbed] });
-
-        /*await interaction.reply({
-            content: `You select: ${interaction.values[0]}`;
-
-        });*/
         
     }
+}
+
+function checkIfAllTasksAreChecked(dataTasks) {
+    let allTasksChecked = true;
+
+    for (let i = 0; i < dataTasks.length; i++) {
+        if(!dataTasks[i].isChecked) {
+            allTasksChecked = false;
+            break;
+        }          
+    }
+
+    return allTasksChecked;
 }
 
 function convertDataTasks(dataEmbedTasks) {
@@ -78,14 +96,12 @@ function generateNewTasksEmbedString(dataTasks, arraySelectedOptionsIndexes) {
             dataTasks[arraySelectedOptionsIndexes[i]].isChecked = false;
     }
 
-
     for (let i = 0; i < dataTasks.length; i++) {
 
         if(dataTasks[i].isChecked) 
             tasksString += `**✔** ~~${dataTasks[i].taskName}~~ ${dataTasks[i].emoji}\n`;
         else 
             tasksString += `**○** ${dataTasks[i].taskName} ${dataTasks[i].emoji}\n`;
-
     }
         
     return tasksString;
@@ -128,3 +144,12 @@ function createSelectMenu(dataTasks, arrayEmojis) {
 	selectMenu.addOptions(options);
 	return selectMenu;
 };
+
+function createButton() {
+    const buttonDone = new ButtonBuilder()
+			.setCustomId('allTasksDone')
+			.setLabel('Finish?')
+            .setEmoji({ name: 'fluffy_check' , id: `1108620303283798117` })
+			.setStyle(2);
+    return buttonDone;
+}

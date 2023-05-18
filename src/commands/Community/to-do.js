@@ -11,11 +11,17 @@ module.exports = {
 			.setRequired(true)),
     
     async execute(interaction, client) {
-		
-		console.log('id mio es ' + interaction.user.id);
-
+	
 		let userCommandData = interaction.options.get('tasks'); //The input is called 'tasks' which it is recieved once the user send the command with the tex
-		let maxOfTasks = 21;
+		let maxOfTasks = 15;
+
+		if(containsSpecialChars(userCommandData.value)) {
+			await interaction.reply({
+				content: '**Special characteres or emojis are not allowed.**\n Try again. ',
+				ephemeral: true
+			 });
+			 return;
+		}
 
 		let arrayTasks = userCommandData.value.split(',').filter(elm => elm); //Turns the string into an array... then... Delete all the void indexes [1,2,3,,,,6,7 ] => [1,2,3,6,7]
 
@@ -39,9 +45,13 @@ module.exports = {
 			embeds: [embedMessage], components: [row]
         });
 
-
     }
 }
+
+function containsSpecialChars(str) {
+	const specialChars = /[^\x20-\x7E]|~/g;
+	return specialChars.test(str);
+  }
 
 function getEmojis(emojis) { 
 	/* -- GETTING EMOJIS FROM THE JSON FILE AND CONVERTING INTO AN ARRAY -- */
@@ -51,7 +61,6 @@ function getEmojis(emojis) {
 		arrayEmojis.push([i, emojis[i]]);
 
 	arrayEmojis.sort(function(a, b){return 0.5 - Math.random()}); //Shuffles the array randomly
-
 	return arrayEmojis;
 }
 
@@ -75,7 +84,6 @@ function generateEmbed(username, profilePic, idUser, formatedTasks) {
 
 	return embedMessage;
 }
-
 
 function createSelectMenu(arrayTasks, arrayEmojis) {
 	const options = [];
