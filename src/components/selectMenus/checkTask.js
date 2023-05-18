@@ -1,4 +1,4 @@
-const { ActionRowBuilder, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, StringSelectMenuBuilder, SelectMenuOptionBuilder, SelectMenuBuilder, embedLength} = require('@discordjs/builders');
+const { ActionRowBuilder, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, StringSelectMenuBuilder, SelectMenuOptionBuilder, SelectMenuBuilder, StringSelectMenuOptionBuilder} = require('@discordjs/builders');
 const { Sticker } = require('discord.js');
 const { data } = require('../../commands/Community/to-do');
 
@@ -11,7 +11,18 @@ module.exports = {
         const dataEmbedTasks = interaction.message.embeds[0].description; //Gets the description from the embed message which are the tasks.
         const dataTasks = convertDataTasks(dataEmbedTasks);
         
-        generateNewTasksEmbedString(dataTasks, interaction.values);
+        const formatedTasks = generateNewTasksEmbedString(dataTasks, interaction.values);
+        const username = interaction.user.username;
+		const profilePic = interaction.user.displayAvatarURL();
+
+        const embedMessage = generateEmbed(username, profilePic, formatedTasks);
+		const selectMenu = createSelectMenu(dataTasks);
+
+        const row = new ActionRowBuilder().addComponents(selectMenu);
+
+		await interaction.update({
+			embeds: [embedMessage], components: [row]
+        });
 
         console.log(dataTasks);
 
@@ -36,10 +47,7 @@ function convertDataTasks(dataEmbedTasks) {
         else if(arrayDataEmbedTasks[i].includes('✔')) isChecked = true;
         else isChecked = false;
 
-        let taskName = '';
-        if(isChecked) taskName = arrayDataEmbedTasks[i].substring(8);
-        else taskName = arrayDataEmbedTasks[i].substring(6);
-
+        let taskName = arrayDataEmbedTasks[i].substring(6); //This delete the first 6 characters (**✔**)
         taskName = taskName.replace(/[^\x20-\x7E]/g, '').trim(); //Removes all the emojis from the string
 
         let emoji = arrayDataEmbedTasks[i];
@@ -86,3 +94,26 @@ function generateEmbed(username, profilePic, formatedTasks) {
 
 	return embedMessage;
 }
+
+function createSelectMenu(dataTasks, arrayEmojis) {
+	const options = [];
+
+	const selectMenu = new StringSelectMenuBuilder()
+	.setCustomId('checkTask')
+	.setPlaceholder('Check a task!')
+	.setMinValues(1)
+	.setMaxValues(dataTasks.length);
+
+	for (let i = 0; i < dataTasks.length; i++) {
+		options.push(
+			new StringSelectMenuOptionBuilder()
+				.setLabel(`${dataTasks[i].taskName}`)
+				//.setEmoji({ name: arrayEmojis[i][0], id: `:${arrayEmojis[i][0]}:` })
+				.setValue(`${i}`)
+				
+		);
+	}
+
+	selectMenu.addOptions(options);
+	return selectMenu;
+};

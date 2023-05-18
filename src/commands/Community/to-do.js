@@ -63,7 +63,7 @@ function concatenateOptions(arrayTasks, arrayEmojis) {
 function generateEmbed(username, profilePic, formatedTasks) {
 	const embedMessage = new EmbedBuilder()
 	.setColor(0x0099FF)
-	.setAuthor({ name: `${username}'s to-do list`, iconURL: profilePic })
+	.setAuthor({ name: `${username}'s goals`, iconURL: profilePic })
 	.setDescription(formatedTasks)
 	.setTimestamp()
 
