@@ -1,4 +1,5 @@
 const { Interaction } = require("discord.js");
+const { useMainPlayer } = require("discord-player");
 
 module.exports = {
     name: 'interactionCreate',
@@ -8,17 +9,20 @@ module.exports = {
 
             const command = client.commands.get(interaction.commandName);
 
-        if (!command) return
-        
-        try {
-            await command.execute(interaction, client);
-        } catch (error) {
-            console.log(error);
-            await interaction.reply({
-                content: 'There was an error while executing this command!', 
-                ephemeral: true
-            })
-        }
+            if (!command) return;
+
+            try {
+                const player = useMainPlayer();
+                const data = { guild: interaction.guild };
+
+                await player.context.provide(data, () => command.execute(interaction, client));
+            } catch (error) {
+                console.log(error);
+                await interaction.reply({
+                    content: 'There was an error while executing this command!', 
+                    ephemeral: true
+                });
+            }
 
         } else if(interaction.isButton()) {
 
@@ -52,5 +56,3 @@ module.exports = {
 
     },
 };
-
-
