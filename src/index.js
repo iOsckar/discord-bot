@@ -23,7 +23,7 @@ const componentsFolders = fs.readdirSync("./src/components");
     client.handleCommands(commandFolders, "./src/commands");
     client.handleComponents(componentsFolders, "./src/components");
 
-    client.login(process.env.token)
+    client.login(process.env.token);
 
 })();
 

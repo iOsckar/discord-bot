@@ -135,7 +135,7 @@ function createSelectMenu(dataTasks, arrayEmojis) {
             .setValue(`${i}`)
 
         if(dataTasks[i].isChecked) 
-            option.setEmoji({ name: 'fluffy_check' , id: `1108620303283798117` })
+            option.setEmoji({ name: '✅' });
 
 		options.push(option);
 
@@ -149,7 +149,7 @@ function createButton() {
     const buttonDone = new ButtonBuilder()
 			.setCustomId('allTasksDone')
 			.setLabel('Finish?')
-            .setEmoji({ name: 'fluffy_check' , id: `1108620303283798117` })
+            .setEmoji({ name: '✅' })
 			.setStyle(2);
     return buttonDone;
 }
