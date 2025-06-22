@@ -7,7 +7,7 @@ module.exports = {
 	.setDescription('Play a song in a voice channel!')
 	.addStringOption(option =>
 		option.setName('url') 
-            .setDescription('The URL of the song to play')
+            .setDescription('Song URL or keywords')
 			.setRequired(true)),
     
     async execute(interaction, client) {
@@ -22,10 +22,10 @@ module.exports = {
         await interaction.deferReply();
         
         try {
+            // Aquí es donde debes pasar interaction.channel como metadata
             const { track } = await player.play(channel, query, {
             nodeOptions: {
-                // nodeOptions are the options for guild node (aka your queue in simple word)
-                metadata: interaction, // we can access this metadata object using queue.metadata later on
+                metadata: interaction.channel, // <--- Esto es lo importante
             },
             });
         
