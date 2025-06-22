@@ -11,6 +11,17 @@ module.exports = {
 			.setRequired(true)),
     
     async execute(interaction, client) {
+
+		/* -------------------------------------------- TOP SECRET (ESTO ME PERMITE EJECUTAR EL COMANDO SOLO A MI)-------------------------------------------- */
+		const allowedUserId = '330183814863257602';
+
+        if (interaction.user.id !== allowedUserId) {
+            return interaction.reply({
+                content: 'Solo @osckar puede ejecutar este comando.',
+                ephemeral: true
+            });
+        }
+		/* -------------------------------------------- TOP SECRET -------------------------------------------- */
 	
 		let userCommandData = interaction.options.get('tasks'); //The input is called 'tasks' which it is recieved once the user send the command with the tex
 		let maxOfTasks = 15;

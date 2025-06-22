@@ -1,40 +1,63 @@
 const { useMainPlayer } = require('discord-player');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { PermissionsBitField } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName('play')
-	.setDescription('Play a song in a voice channel!')
-	.addStringOption(option =>
-		option.setName('url') 
-            .setDescription('Song URL or keywords')
-			.setRequired(true)),
-    
-    async execute(interaction, client) {
+        .setName('play')
+        .setDescription('Reproduce una pista')
+        .addStringOption(option =>
+            option.setName('url')
+                .setDescription('URL de la pista o nombre de la canción')
+                .setRequired(true)
+        ),
 
+    async execute(interaction, client) {
         const player = useMainPlayer();
-        const channel = interaction.member.voice.channel;
-        if (!channel)
-            return interaction.reply('You are not connected to a voice channel!'); // make sure we have a voice channel
-        const query = interaction.options.getString('url', true); // we need input/query to play
-        
-        // let's defer the interaction as things can take time to process
-        await interaction.deferReply();
-        
-        try {
-            // Aquí es donde debes pasar interaction.channel como metadata
-            const { track } = await player.play(channel, query, {
-            nodeOptions: {
-                metadata: interaction.channel, // <--- Esto es lo importante
-            },
-            });
-        
-            return interaction.followUp(`**${track.title}** enqueued!`);
-        } catch (e) {
-            // let's return error if something failed
-            return interaction.followUp(`Something went wrong: ${e}`);
+        const query = interaction.options.getString('url', true);
+        const voiceChannel = interaction.member.voice.channel;
+
+        if (!voiceChannel) {
+            return interaction.reply('Necesitas estar en un canal de voz para reproducir música');
         }
 
+        if (
+            interaction.guild.members.me.voice.channel &&
+            interaction.guild.members.me.voice.channel !== voiceChannel
+        ) {
+            return interaction.reply('Ya estoy reproduciendo música en otro canal de voz >:(');
+        }
+
+        if (
+            !voiceChannel
+                .permissionsFor(interaction.guild.members.me)
+                .has(PermissionsBitField.Flags.Connect)
+        ) {
+            return interaction.reply('No tengo permiso para unirme a tu canal de voz!');
+        }
+
+        if (
+            !voiceChannel
+                .permissionsFor(interaction.guild.members.me)
+                .has(PermissionsBitField.Flags.Speak)
+        ) {
+            return interaction.reply('No tengo permiso para hablar en tu canal de voz!');
+        }
+
+        await interaction.deferReply();
+
+        try {
+            const { track } = await player.play(voiceChannel, query, {
+                nodeOptions: {
+                    metadata: interaction.channel,
+                },
+            });
+
+            return interaction.editReply(`**${track.title}** ha sido añadida a TU COLA`);
+        } catch (error) {
+            console.error(error);
+            return interaction.editReply('Un error ocurrió al intentar reproducir la pista.');
+        }
     }
-}
+};
 
