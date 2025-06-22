@@ -1,7 +1,9 @@
 const { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField, Permissions, MessageManager, Embed, Collection } = require(`discord.js`);
 const { Player } = require('discord-player');
-const { DefaultExtractors } = require('@discord-player/extractor');
-const { YoutubeiExtractor } = require("discord-player-youtubei")
+const { DefaultExtractors, SoundCloudExtractor, SpotifyExtractor } = require('@discord-player/extractor');
+const { YoutubeiExtractor } = require("discord-player-youtubei");
+
+
 const fs = require('fs');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] }); 
@@ -31,8 +33,12 @@ const componentsFolders = fs.readdirSync("./src/components");
     client.handleCommands(commandFolders, "./src/commands");
     client.handleComponents(componentsFolders, "./src/components");
 
-    await player.extractors.register(DefaultExtractors);
-    await player.extractors.register(YoutubeiExtractor, {});
+    try {
+        await player.extractors.loadMulti([SoundCloudExtractor, SpotifyExtractor, YoutubeiExtractor]);
+
+    } catch (error) {
+        console.error('Error al registrar extractores:', error);
+    }
 
     for (const file of playerEventFiles) {
         const event = require(`./playerEvents/${file}`);
@@ -40,10 +46,16 @@ const componentsFolders = fs.readdirSync("./src/components");
     }
 
     client.login(process.env.token);
-
 })();
 
+/* ------------ CAPTURA LOS ERRORES Y EVITA QUE EL BOT SE APAGE ---------------------- */
 
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    // Aquí puedes notificar en un canal de Discord si quieres
+});
 
-
-
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Aquí puedes notificar en un canal de Discord si quieres
+});
